@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <p> Нажмите "Начать" и скажите "ответ 1/2/3/4"</p>
+
+    <button id="start">Начать</button><br>
+
+    <div id="res"></div>
+
+    <script>
+      var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+      var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+      var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+      var commands = ['ответ', '1', '2', '3', '4'];
+      var grammar = '#JSGF V1.0; grammar commands; public <command> = ' + commands.join(' | ') + ' ;';
+      var recognition = new SpeechRecognition();
+      var speechRecognitionList = new SpeechGrammarList();
+
+      speechRecognitionList.addFromString(grammar, 1);
+      recognition.grammars = speechRecognitionList;
+      recognition.continuous = false;
+      recognition.lang = 'ru-RU';
+      recognition.interimResult = false;
+      recognition.maxAlternatives = 1;
+
+      var res = document.getElementById("res");
+      document.getElementById("start").onclick = function() {
+        recognition.start();
+        console.log("Started");
+      }
+
+      recognition.onresult = function(event) {
+
+        var command = event.results[event.results.length - 1][0].transcript;
+        var cmds = command.trim().split(" ");
+        if (cmds[0] == "ответ" && (cmds[1] >= '1' && cmds[1] <= '4'))
+          res.innerHTML += command + " ";
+        console.log(event.results);
+      }
+
+      recognition.onspeechend = function() {
+        recognition.stop();
+
+        setTimeout(function() { recognition.start() }, 1000);
+      }
+    </script>
+  </body>
+</html>
